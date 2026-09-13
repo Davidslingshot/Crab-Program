@@ -1,0 +1,74 @@
+<view class="container">
+  <view class="card">
+    <view class="title">提货申请</view>
+    
+    <view wx:if="!submitted">
+      <view class="card" style="background: #fff8f0;">
+        <view class="text-muted text-sm mb-20">当前蟹卡信息</view>
+        <view class="text-lg">卡号：{{card.cardNo}}</view>
+        <view class="text-sm text-muted mt-10">状态：未提货</view>
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">收货人姓名 *</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入收货人姓名" 
+          value="{{name}}"
+          bindinput="handleNameInput"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">联系电话 *</view>
+        <input 
+          class="form-input" 
+          placeholder="请输入手机号码" 
+          value="{{phone}}"
+          bindinput="handlePhoneInput"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">收货地址 *</view>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入详细收货地址" 
+          value="{{address}}"
+          bindinput="handleAddressInput"
+        />
+      </view>
+      
+      <view class="form-item">
+        <view class="form-label">备注留言</view>
+        <textarea 
+          class="form-textarea" 
+          placeholder="选填，如有特殊要求请填写" 
+          value="{{remark}}"
+          bindinput="handleRemarkInput"
+        />
+      </view>
+      
+      <view wx:if="{{error}}" class="error">{{error}}</view>
+      
+      <button class="btn btn-primary" bindtap="submit" disabled="{{loading}}">
+        {{loading ? '提交中...' : '提交提货申请'}}
+      </button>
+      
+      <button class="btn btn-secondary mt-20" bindtap="goBack">返回登录</button>
+    </view>
+    
+    <view wx:else>
+      <view class="text-center">
+        <view class="text-success text-lg mb-20">✓ 提货申请提交成功！</view>
+        <view class="card" style="background: #f8fff8;">
+          <view class="text-sm text-muted mb-10">订单号</view>
+          <view class="text-lg font-bold">{{order.orderId}}</view>
+          <view class="text-sm text-muted mt-20">下单时间</view>
+          <view class="text-sm">{{order.createTime}}</view>
+        </view>
+        <button class="btn btn-primary mt-30" bindtap="viewOrder">查看订单详情</button>
+      </view>
+    </view>
+  </view>
+</view>

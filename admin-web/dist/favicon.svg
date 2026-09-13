@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="crabGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E53935;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="clawGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF8A8A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF6B6B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="50" cy="55" rx="30" ry="25" fill="url(#crabGradient)" />
+  <ellipse cx="50" cy="55" rx="22" ry="18" fill="#FF8A8A" />
+  <circle cx="40" cy="48" r="4" fill="#FFF" />
+  <circle cx="60" cy="48" r="4" fill="#FFF" />
+  <circle cx="41" cy="48" r="2" fill="#333" />
+  <circle cx="61" cy="48" r="2" fill="#333" />
+  <path d="M42 62 Q50 68 58 62" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round" />
+  <ellipse cx="25" cy="45" rx="12" ry="8" fill="url(#clawGradient)" transform="rotate(-30 25 45)" />
+  <ellipse cx="75" cy="45" rx="12" ry="8" fill="url(#clawGradient)" transform="rotate(30 75 45)" />
+  <ellipse cx="20" cy="50" rx="6" ry="4" fill="#FF6B6B" transform="rotate(-30 20 50)" />
+  <ellipse cx="80" cy="50" rx="6" ry="4" fill="#FF6B6B" transform="rotate(30 80 50)" />
+  <rect x="28" y="72" width="6" height="10" rx="2" fill="#FF6B6B" transform="rotate(-15 31 77)" />
+  <rect x="40" y="76" width="6" height="10" rx="2" fill="#FF6B6B" />
+  <rect x="54" y="76" width="6" height="10" rx="2" fill="#FF6B6B" />
+  <rect x="66" y="72" width="6" height="10" rx="2" fill="#FF6B6B" transform="rotate(15 69 77)" />
+</svg>

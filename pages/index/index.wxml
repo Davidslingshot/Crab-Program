@@ -1,0 +1,9 @@
+<!--index.wxml-->
+<view class="fixed-header">
+  <view class="brand-title">毛字蟹舫蟹卡核销程序</view>
+</view>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    Weixin
+  </view>
+</scroll-view>

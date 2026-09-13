@@ -1,0 +1,39 @@
+/**index.wxss**/
+page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.scrollarea {
+  flex: 1;
+  overflow-y: hidden;
+  padding-top: calc(120rpx + constant(safe-area-inset-top));
+  padding-top: calc(120rpx + env(safe-area-inset-top));
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: linear-gradient(135deg, #8b0000 0%, #b92b27 100%);
+  padding: 30rpx 24rpx;
+  padding-top: calc(30rpx + constant(safe-area-inset-top));
+  padding-top: calc(30rpx + env(safe-area-inset-top));
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+  height: auto;
+  min-height: calc(80rpx + constant(safe-area-inset-top));
+  min-height: calc(80rpx + env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  line-height: 1.4;
+}

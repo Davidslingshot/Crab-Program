@@ -1,0 +1,42 @@
+<view class="page-container">
+  <view class="login-card">
+    <view class="logo-section">
+      <view class="logo-icon">🦀</view>
+      <view class="page-title">蟹卡提货</view>
+      <view class="page-subtitle">请输入卡号和密码</view>
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">卡号</view>
+      <input 
+        class="form-input" 
+        placeholder="请输入蟹卡卡号" 
+        value="{{cardNo}}"
+        bindinput="handleCardNoInput"
+        maxlength="20"
+      />
+    </view>
+    
+    <view class="form-item">
+      <view class="form-label">密码</view>
+      <input 
+        class="form-input" 
+        placeholder="请输入密码" 
+        value="{{password}}"
+        bindinput="handlePasswordInput"
+        password
+        maxlength="20"
+      />
+    </view>
+    
+    <view wx:if="{{error}}" class="error-text">{{error}}</view>
+    
+    <button class="btn btn-primary" bindtap="submit" disabled="{{loading}}">
+      {{loading ? '验证中...' : '登录'}}
+    </button>
+    
+    <view class="footer">
+      <view class="footer-text">蟹卡提货系统</view>
+    </view>
+  </view>
+</view>

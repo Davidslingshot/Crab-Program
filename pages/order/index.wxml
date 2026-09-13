@@ -1,0 +1,147 @@
+<view class="page-container">
+  <view class="page-header">
+    <view class="page-title">订单详情</view>
+    <view class="page-subtitle">蟹卡提货系统</view>
+
+    <view wx:if="{{order}}" class="status-overview">
+      <view class="status-icon-large {{order.status}}">
+        {{order.status === 'pending' ? '⏳' : (order.status === 'shipped' ? '🚚' : '✅')}}
+      </view>
+      <view class="status-text">
+        <view class="status-main">
+          {{order.status === 'pending' ? '等待商家处理' : (order.status === 'shipped' ? '商品已发货' : '订单已完成')}}
+        </view>
+        <view class="status-sub">
+          {{order.status === 'pending' ? '请耐心等待商家确认' : (order.status === 'shipped' ? '请注意查收货物' : '感谢您的使用')}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!order}}" class="empty-state">
+    <view class="empty-icon">📦</view>
+    <view class="empty-text">暂无订单记录</view>
+    <view class="empty-subtext">您的蟹卡尚未提交提货申请</view>
+  </view>
+
+  <view wx:if="{{order}}">
+    <view class="card">
+      <view class="card-icon-title">
+        <text class="card-icon">📋</text>
+        <text class="card-title">订单信息</text>
+      </view>
+
+      <view class="info-section">
+        <view class="info-row">
+          <view class="info-icon">🆔</view>
+          <view class="info-content">
+            <view class="info-label">订单编号</view>
+            <view class="info-value-lg">{{order.orderId}}</view>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon">🕐</view>
+          <view class="info-content">
+            <view class="info-label">下单时间</view>
+            <view class="info-value">{{order.createTime}}</view>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon">📊</view>
+          <view class="info-content">
+            <view class="info-label">订单状态</view>
+            <view class="order-status {{order.status === 'pending' ? 'status-pending' : (order.status === 'shipped' ? 'status-shipped' : 'status-completed')}}">
+              {{order.status === 'pending' ? '待处理' : (order.status === 'shipped' ? '已发货' : '已完成')}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-icon-title">
+        <text class="card-icon">👤</text>
+        <text class="card-title">收货信息</text>
+      </view>
+
+      <view class="info-section">
+        <view class="info-row">
+          <view class="info-icon">👤</view>
+          <view class="info-content">
+            <view class="info-label">收货人</view>
+            <view class="info-value info-value-highlight">{{order.name}}</view>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon">📞</view>
+          <view class="info-content">
+            <view class="info-label">联系电话</view>
+            <view class="info-value">{{order.phone}}</view>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon">📍</view>
+          <view class="info-content">
+            <view class="info-label">收货地址</view>
+            <view class="info-value">{{order.address}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{order.remark}}" class="card">
+      <view class="card-icon-title">
+        <text class="card-icon">📝</text>
+        <text class="card-title">备注留言</text>
+      </view>
+      <view class="info-section">
+        <view class="info-value">{{order.remark}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-icon-title">
+        <text class="card-icon">🎫</text>
+        <text class="card-title">蟹卡信息</text>
+      </view>
+
+      <view class="info-section">
+        <view class="info-row">
+          <view class="info-icon">🔢</view>
+          <view class="info-content">
+            <view class="info-label">卡号</view>
+            <view class="info-value-lg">{{card.cardNo}}</view>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-icon">📦</view>
+          <view class="info-content">
+            <view class="info-label">状态</view>
+            <view class="info-value">{{card.status === 'used' ? '已核销' : '未核销'}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{order.status === 'shipped'}}" class="card ship-notice">
+      <view class="ship-notice-header">
+        <text class="ship-notice-icon">📦</text>
+        <text class="ship-notice-title">发货通知</text>
+      </view>
+      <view class="ship-notice-content">
+        <view class="ship-notice-text">您的订单已发货，请注意查收！</view>
+        <view class="ship-notice-text mt-10">发货时间：<text class="ship-notice-time">{{order.shipTime}}</text></view>
+      </view>
+    </view>
+
+    <view wx:if="{{order.status === 'shipped'}}" class="card">
+      <button class="btn btn-primary" bindtap="confirmReceipt">
+        ✅ 确认收到货物
+      </button>
+    </view>
+  </view>
+
+  <view class="bottom-btn">
+    <button class="btn btn-secondary" bindtap="logout">退出登录</button>
+  </view>
+</view>

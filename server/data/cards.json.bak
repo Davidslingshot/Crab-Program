@@ -1,0 +1,74 @@
+[
+  {
+    "cardNo": "CRAB20240001",
+    "password": "123456",
+    "status": "used",
+    "orderId": "ORD1778314377960"
+  },
+  {
+    "cardNo": "CRAB20240002",
+    "password": "abcdef",
+    "status": "used",
+    "orderId": "ORD1778315150624"
+  },
+  {
+    "cardNo": "CRAB20240003",
+    "password": "888888",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "CRAB20240004",
+    "password": "666666",
+    "status": "used",
+    "orderId": "ORD1778318478832"
+  },
+  {
+    "cardNo": "CRAB20240005",
+    "password": "111111",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "CRAB20240006",
+    "password": "222222",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "CRAB20240007",
+    "password": "333333",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "CRAB20240008",
+    "password": "444444",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "CRAB20240009",
+    "password": "555555",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "CRAB20240010",
+    "password": "777777",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "12313",
+    "password": "123",
+    "status": "unused",
+    "orderId": null
+  },
+  {
+    "cardNo": "123123",
+    "password": "23",
+    "status": "unused",
+    "orderId": null
+  }
+]
