@@ -56,6 +56,7 @@
       </button>
       
       <button class="btn btn-secondary mt-20" bindtap="goBack">返回登录</button>
+      <button class="btn btn-secondary mt-10" bindtap="viewOrder">查看我的订单</button>
     </view>
     
     <view wx:else>

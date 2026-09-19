@@ -16,15 +16,15 @@ Page({
       return;
     }
     
-    api.getOrders().then(res => {
-      console.log('order page - orders response:', res);
-      let order = null;
-      if (res.success && Array.isArray(res.data)) {
-        console.log('order page - looking for cardNo:', card.cardNo);
-        order = res.data.find(o => o.cardNo === card.cardNo);
-        console.log('order page - found order:', order);
+    api.getOrderByCard(card.cardNo).then(res => {
+      console.log('order page - order response:', res);
+      if (res.success && res.hasOrder) {
+        this.setData({ card: res.card, order: res.order, loading: false });
+      } else if (res.success && !res.hasOrder) {
+        this.setData({ card: res.card, order: null, loading: false });
+      } else {
+        this.setData({ card, order: null, loading: false });
       }
-      this.setData({ card, order, loading: false });
     }).catch(err => {
       console.error('Failed to get order:', err);
       this.setData({ card, order: null, loading: false });
@@ -33,6 +33,10 @@ Page({
 
   goBack() {
     wx.navigateBack();
+  },
+
+  goPickup() {
+    wx.redirectTo({ url: '/pages/pickup/index' });
   },
 
   async confirmReceipt() {

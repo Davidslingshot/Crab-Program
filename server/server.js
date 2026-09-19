@@ -258,6 +258,36 @@ app.post('/api/cards/validate', (req, res) => {
   }
 });
 
+app.get('/api/orders/bycard/:cardNo', (req, res) => {
+  try {
+    const { cardNo } = req.params;
+
+    const card = db.prepare('SELECT * FROM cards WHERE cardNo = ?').get(cardNo);
+    if (!card) {
+      return res.json({ success: false, message: '蟹卡不存在' });
+    }
+
+    if (card.status === 'unused') {
+      return res.json({
+        success: true,
+        hasOrder: false,
+        card: { cardNo: card.cardNo, status: card.status }
+      });
+    }
+
+    const order = db.prepare('SELECT * FROM orders WHERE cardNo = ?').get(cardNo);
+    res.json({
+      success: true,
+      hasOrder: true,
+      card: { cardNo: card.cardNo, status: card.status },
+      order
+    });
+  } catch (e) {
+    console.error('Error getting order by card:', e);
+    res.status(500).json({ success: false, message: '查询订单失败' });
+  }
+});
+
 app.post('/api/orders', (req, res) => {
   try {
     const { cardNo, name, phone, address, remark } = req.body;

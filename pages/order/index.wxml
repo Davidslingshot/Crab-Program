@@ -22,6 +22,15 @@
     <view class="empty-icon">📦</view>
     <view class="empty-text">暂无订单记录</view>
     <view class="empty-subtext">您的蟹卡尚未提交提货申请</view>
+    <view class="empty-card-info" wx:if="{{card}}">
+      <view class="info-icon">🎫</view>
+      <view class="info-label">卡号</view>
+      <view class="info-value-lg">{{card.cardNo}}</view>
+      <view class="info-value">状态:未使用</view>
+    </view>
+    <button wx:if="{{card && card.status === 'unused'}}" class="btn btn-primary" bindtap="goPickup">
+      前往提货
+    </button>
   </view>
 
   <view wx:if="{{order}}">

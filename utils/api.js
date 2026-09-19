@@ -35,6 +35,28 @@ function getOrders(status = 'all') {
   return request(`/orders?status=${status}`);
 }
 
+function getOrderByCard(cardNo) {
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: `${BASE_URL}/orders/bycard/${encodeURIComponent(cardNo)}`,
+      method: 'GET',
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        if (res.statusCode === 200) {
+          resolve(res.data);
+        } else {
+          reject(res.data);
+        }
+      },
+      fail: (err) => {
+        reject(err);
+      }
+    });
+  });
+}
+
 function updateOrderStatus(orderId, status) {
   return request(`/orders/${orderId}/status`, 'PUT', { status });
 }
@@ -91,6 +113,7 @@ module.exports = {
   validateCard,
   createOrder,
   getOrders,
+  getOrderByCard,
   updateOrderStatus,
   getCards,
   importCards,
