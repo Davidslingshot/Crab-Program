@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'http://175.27.225.217/api';
 
 function request(url, method = 'GET', data = null) {
   return new Promise((resolve, reject) => {
