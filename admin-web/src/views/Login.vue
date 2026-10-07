@@ -13,16 +13,17 @@
           <el-button type="primary" @click="handleLogin" :loading="loading" style="width:100%">登录</el-button>
         </el-form-item>
       </el-form>
+      <el-message v-if="error" type="error" :message="error" show-close />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
 import { login } from '@/utils/api'
 
 const loading = ref(false)
+const error = ref('')
 const form = reactive({
   username: '',
   password: ''
@@ -30,21 +31,21 @@ const form = reactive({
 
 const handleLogin = async () => {
   if (!form.username || !form.password) {
-    ElMessage.error('请填写用户名和密码')
+    error.value = '请填写用户名和密码'
     return
   }
   loading.value = true
+  error.value = ''
   try {
     const res = await login(form.username, form.password)
     if (res.success) {
       localStorage.setItem('admin_token', res.token)
       window.location.href = '/'
     } else {
-      ElMessage.error(res.message || '登录失败')
+      error.value = res.message
     }
   } catch (e) {
-    console.error('Login error:', e)
-    ElMessage.error('登录失败，请检查网络')
+    error.value = '登录失败，请重试'
   } finally {
     loading.value = false
   }

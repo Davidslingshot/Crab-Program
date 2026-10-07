@@ -5,7 +5,8 @@ Page({
     cardNo: '',
     password: '',
     error: '',
-    loading: false
+    loading: false,
+    agreed: false
   },
 
   onLoad() {
@@ -14,6 +15,9 @@ Page({
       api.validateCard(card.cardNo, card.password).then(res => {
         if (res.success) {
           wx.setStorageSync('currentCard', res.card);
+          if (res.order) {
+            wx.setStorageSync('currentOrder', res.order);
+          }
           if (res.isUsed) {
             wx.redirectTo({ url: '/pages/order/index' });
           } else {
@@ -27,16 +31,35 @@ Page({
   },
 
   handleCardNoInput(e) {
-    this.setData({ cardNo: e.detail.value.toUpperCase() });
+    const value = (e.detail.value || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    this.setData({ cardNo: value });
   },
 
   handlePasswordInput(e) {
-    this.setData({ password: e.detail.value });
+    const value = (e.detail.value || '').replace(/[^\x20-\x7E]/g, '');
+    this.setData({ password: value });
+  },
+
+  toggleAgree() {
+    this.setData({ agreed: !this.data.agreed, error: '' });
+  },
+
+  openService() {
+    wx.navigateTo({ url: '/pages/legal/index?type=service' });
+  },
+
+  openPrivacy() {
+    wx.navigateTo({ url: '/pages/legal/index?type=privacy' });
   },
 
   async submit() {
-    const { cardNo, password } = this.data;
+    const { cardNo, password, agreed } = this.data;
     
+    if (!agreed) {
+      this.setData({ error: '请先阅读并同意《用户服务协议》和《隐私政策》' });
+      return;
+    }
+
     if (!cardNo.trim()) {
       this.setData({ error: '请输入卡号' });
       return;
@@ -57,6 +80,9 @@ Page({
       if (result.success) {
         this.setData({ loading: false });
         wx.setStorageSync('currentCard', result.card);
+        if (result.order) {
+          wx.setStorageSync('currentOrder', result.order);
+        }
         if (result.isUsed) {
           wx.redirectTo({ url: '/pages/order/index' });
         } else {

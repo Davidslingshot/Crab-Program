@@ -10,7 +10,7 @@ Page({
     error: '',
     loading: false,
     submitted: false,
-    order: null
+    agreed: false
   },
 
   onLoad() {
@@ -42,8 +42,25 @@ Page({
     this.setData({ remark: e.detail.value });
   },
 
+  toggleAgree() {
+    this.setData({ agreed: !this.data.agreed, error: '' });
+  },
+
+  openService() {
+    wx.navigateTo({ url: '/pages/legal/index?type=service' });
+  },
+
+  openPrivacy() {
+    wx.navigateTo({ url: '/pages/legal/index?type=privacy' });
+  },
+
   async submit() {
-    const { card, name, phone, address, remark } = this.data;
+    const { card, name, phone, address, remark, agreed } = this.data;
+    
+    if (!agreed) {
+      this.setData({ error: '请先阅读并同意《用户服务协议》和《隐私政策》' });
+      return;
+    }
     
     if (!name.trim()) {
       this.setData({ error: '请输入收货人姓名' });
@@ -72,16 +89,26 @@ Page({
     const result = await api.createOrder(card.cardNo, name, phone, address, remark);
     
     if (result.success) {
-      this.setData({ loading: false });
+      const usedCard = {
+        ...card,
+        status: 'used',
+        orderId: result.order && result.order.orderId
+      };
+      wx.setStorageSync('currentCard', usedCard);
+      this.setData({
+        loading: false,
+        submitted: true,
+        order: result.order || {},
+        card: usedCard
+      });
       wx.showToast({
         title: '订购成功',
         icon: 'success',
-        duration: 2000
+        duration: 1500
       });
       setTimeout(() => {
-        wx.removeStorageSync('currentCard');
-        wx.redirectTo({ url: '/pages/login/index' });
-      }, 2000);
+        wx.redirectTo({ url: '/pages/order/index' });
+      }, 1500);
     } else {
       this.setData({ error: result.message, loading: false });
     }

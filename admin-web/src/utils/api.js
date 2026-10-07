@@ -25,7 +25,7 @@ instance.interceptors.response.use(
 )
 
 export const login = (username, password) => instance.post('/admin/login', { username, password })
-export const changePassword = (oldPassword, newPassword) => instance.put('/admin/password', { oldPassword, newPassword })
+export const changePassword = (oldPassword, newPassword) => instance.post('/admin/password', { oldPassword, newPassword })
 export const getOrders = (status = 'all') => instance.get(`/orders?status=${status}`)
 export const updateOrderStatus = (orderId, status) => instance.put(`/orders/${orderId}/status`, { status })
 export const getCards = (params = {}) => instance.get('/cards', { params })

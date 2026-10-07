@@ -1,130 +1,58 @@
-# 蟹卡提货小程序后端服务器
+# 蟹卡提货后端
 
-## 功能说明
+为小程序和网页后台提供接口。数据使用 SQLite（`data/crab_card.db`），首次启动会建表并写入默认蟹卡。
 
-这是一个为蟹卡提货小程序提供的后端服务器，实现了以下功能：
-- 卡片验证和管理
-- 订单创建和管理
-- 数据持久化存储
-- CSV导出功能
+## 安装与启动
 
-## 安装步骤
+需要 Node.js 14+。
 
-1. 确保已安装 Node.js（建议版本 14+）
-
-2. 进入服务器目录：
 ```bash
 cd server
-```
-
-3. 安装依赖：
-```bash
 npm install
+npm start          # 生产
+npm run dev        # 开发（nodemon）
 ```
 
-## 启动服务器
+默认监听 `http://localhost:3000`。可用 `GET /api/health` 确认进程是否为最新代码。
 
-### 开发模式（自动重启）
-```bash
-npm run dev
-```
+## 用户接口（无需管理员 token）
 
-### 生产模式
-```bash
-npm start
-```
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/cards/validate` | 校验卡号密码，返回卡片及是否已提货 |
+| POST | `/api/orders` | 提交提货（姓名、手机、地址、备注） |
+| GET | `/api/orders/bycard/:cardNo` | 按卡号查询订单 |
+| POST | `/api/orders/mine` | 凭卡号密码查询自己的订单 |
+| POST | `/api/orders/confirm` | 用户确认收货 |
 
-服务器将在 `http://localhost:3000` 启动
+## 管理接口（需 JWT）
 
-## API接口
+请求头：`Authorization: Bearer <token>`
 
-### 1. 获取所有卡片
-```
-GET /api/cards
-```
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/admin/login` | 管理员登录 |
+| GET | `/api/cards` | 卡片列表（search、status） |
+| POST | `/api/cards/import` | 批量导入 |
+| DELETE | `/api/cards/:cardNo` | 删除卡片 |
+| GET | `/api/orders` | 订单列表（status） |
+| PUT | `/api/orders/:orderId/status` | 改状态：pending / shipped / completed |
+| GET | `/api/orders/export` | 导出 CSV |
 
-### 2. 验证卡片
-```
-POST /api/cards/validate
-Content-Type: application/json
+默认管理员：`admin` / `admin123`。
 
-{
-  "cardNo": "CRAB20240001",
-  "password": "123456"
-}
-```
+## 数据
 
-### 3. 创建订单
-```
-POST /api/orders
-Content-Type: application/json
+- 目录：`server/data/`  
+- 主库：`crab_card.db`  
+- 旧版 JSON 仅在库为空时尝试迁移一次  
 
-{
-  "cardNo": "CRAB20240001",
-  "name": "张三",
-  "phone": "13800138000",
-  "address": "北京市朝阳区",
-  "remark": "备注信息"
-}
-```
+请定期备份整个 `data` 目录。
 
-### 4. 获取订单列表
-```
-GET /api/orders?status=all
-```
-参数：
-- `status`: 订单状态（all/pending/completed）
+## 默认测试卡
 
-### 5. 更新订单状态
-```
-PUT /api/orders/:orderId/status
-Content-Type: application/json
+CRAB20240001～CRAB20240010，密码依次为：123456、abcdef、888888、666666、111111、222222、333333、444444、555555、777777。
 
-{
-  "status": "completed"
-}
-```
+## 注意
 
-### 6. 导入卡片
-```
-POST /api/cards/import
-Content-Type: application/json
-
-{
-  "newCards": [
-    {
-      "cardNo": "CRAB20240011",
-      "password": "password123"
-    }
-  ]
-}
-```
-
-### 7. 导出订单为CSV
-```
-GET /api/orders/export
-```
-
-## 数据存储
-
-数据存储在 `server/data` 目录下：
-- `cards.json`: 卡片数据
-- `orders.json`: 订单数据
-
-## 默认数据
-
-服务器首次启动时会自动初始化10张默认卡片：
-- 卡号：CRAB20240001 ~ CRAB20240010
-- 密码：123456, abcdef, 888888, 666666, 111111, 222222, 333333, 444444, 555555, 777777
-
-## 管理员账号
-
-用户名：`admin`
-密码：`admin123`
-
-## 注意事项
-
-1. 确保服务器在运行时，小程序才能正常使用
-2. 修改服务器端口需要同时修改小程序中的 `utils/api.js` 中的 `BASE_URL`
-3. 数据文件会自动创建，无需手动创建
-4. 建议定期备份 `server/data` 目录下的数据文件
+修改端口时，同步更新小程序 `utils/api.js` 的 `BASE_URL` 和 `admin-web/vite.config.js` 的代理目标。云主机部署后需重启正在运行的 Node 进程，仅 `pm2 restart` 而文件未覆盖不会生效。

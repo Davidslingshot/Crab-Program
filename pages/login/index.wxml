@@ -1,4 +1,6 @@
 <view class="page-container">
+  <image class="bg-pattern" src="/images/jiangnan.jpg" mode="aspectFill"/>
+  <view class="bg-veil"></view>
   <view class="login-card">
     <view class="logo-section">
       <view class="logo-icon">🦀</view>
@@ -10,7 +12,10 @@
       <view class="form-label">卡号</view>
       <input 
         class="form-input" 
-        placeholder="请输入蟹卡卡号" 
+        type="text"
+        lang="en"
+        confirm-type="done"
+        placeholder="请输入蟹卡卡号"
         value="{{cardNo}}"
         bindinput="handleCardNoInput"
         maxlength="20"
@@ -21,6 +26,9 @@
       <view class="form-label">密码</view>
       <input 
         class="form-input" 
+        type="text"
+        lang="en"
+        confirm-type="done"
         placeholder="请输入密码" 
         value="{{password}}"
         bindinput="handlePasswordInput"
@@ -30,8 +38,18 @@
     </view>
     
     <view wx:if="{{error}}" class="error-text">{{error}}</view>
+
+    <view class="agree-row" bindtap="toggleAgree">
+      <view class="agree-box {{agreed ? 'checked' : ''}}">{{agreed ? '✓' : ''}}</view>
+      <view class="agree-text">
+        我已阅读并同意
+        <text class="agree-link" catchtap="openService">《用户服务协议》</text>
+        和
+        <text class="agree-link" catchtap="openPrivacy">《隐私政策》</text>
+      </view>
+    </view>
     
-    <button class="btn btn-primary" bindtap="submit" disabled="{{loading}}">
+    <button class="btn btn-primary" bindtap="submit" disabled="{{loading || !agreed}}">
       {{loading ? '验证中...' : '登录'}}
     </button>
     

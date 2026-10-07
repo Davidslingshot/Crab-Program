@@ -15,7 +15,7 @@
           <el-icon><Upload /></el-icon>
           <span>批量导入</span>
         </el-menu-item>
-        <el-menu-item index="/change-password" @click="navigate('/change-password')">
+        <el-menu-item index="/password" @click="navigate('/password')">
           <el-icon><Lock /></el-icon>
           <span>修改密码</span>
         </el-menu-item>

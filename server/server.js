@@ -5,14 +5,27 @@ const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = 3000;
 const JWT_SECRET = 'crab_card_jwt_secret_key';
-const ADMIN_USER = { username: 'xmc', password: 'admin123' };
+const DEFAULT_ADMIN = { username: 'xmc', password: 'admin123' };
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(String(password)).digest('hex');
+}
 
 app.use(cors());
 app.use(bodyParser.json());
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    version: 'bycard-20260919',
+    hasBycard: true
+  });
+});
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -82,6 +95,29 @@ function initDatabase() {
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_orders_cardNo ON orders(cardNo)
   `);
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      username TEXT PRIMARY KEY,
+      passwordHash TEXT NOT NULL
+    )
+  `);
+
+  const oldAdmin = db.prepare('SELECT username FROM admin_users WHERE username = ?').get('admin');
+  const newAdmin = db.prepare('SELECT username FROM admin_users WHERE username = ?').get(DEFAULT_ADMIN.username);
+  if (oldAdmin && !newAdmin) {
+    db.prepare('UPDATE admin_users SET username = ? WHERE username = ?').run(DEFAULT_ADMIN.username, 'admin');
+    console.log('Renamed admin user to', DEFAULT_ADMIN.username);
+  }
+
+  const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
+  if (!adminCount.count) {
+    db.prepare('INSERT INTO admin_users (username, passwordHash) VALUES (?, ?)').run(
+      DEFAULT_ADMIN.username,
+      hashPassword(DEFAULT_ADMIN.password)
+    );
+    console.log('Initialized default admin user');
+  }
 
   migrateFromJson();
 }
@@ -169,8 +205,9 @@ function migrateFromJson() {
 app.post('/api/admin/login', (req, res) => {
   try {
     const { username, password } = req.body;
-    
-    if (username === ADMIN_USER.username && password === ADMIN_USER.password) {
+    const admin = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
+
+    if (admin && admin.passwordHash === hashPassword(password)) {
       const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' });
       res.json({ success: true, token, message: '登录成功' });
     } else {
@@ -182,24 +219,24 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
-app.put('/api/admin/password', authenticateToken, (req, res) => {
+app.post('/api/admin/password', authenticateToken, (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    
     if (!oldPassword || !newPassword) {
-      return res.json({ success: false, message: '请填写旧密码和新密码' });
+      return res.json({ success: false, message: '请填写原密码和新密码' });
     }
-    
-    if (newPassword.length < 6) {
-      return res.json({ success: false, message: '新密码长度至少6位' });
+    if (String(newPassword).length < 6) {
+      return res.json({ success: false, message: '新密码至少 6 位' });
     }
-    
-    if (oldPassword === ADMIN_USER.password) {
-      ADMIN_USER.password = newPassword;
-      res.json({ success: true, message: '密码修改成功，请重新登录' });
-    } else {
-      res.json({ success: false, message: '旧密码错误' });
+
+    const username = req.user && req.user.username;
+    const admin = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
+    if (!admin || admin.passwordHash !== hashPassword(oldPassword)) {
+      return res.json({ success: false, message: '原密码不正确' });
     }
+
+    db.prepare('UPDATE admin_users SET passwordHash = ? WHERE username = ?').run(hashPassword(newPassword), username);
+    res.json({ success: true, message: '密码已更新，请重新登录' });
   } catch (e) {
     console.error('Change password error:', e);
     res.status(500).json({ success: false, message: '修改密码失败' });
@@ -246,45 +283,17 @@ app.post('/api/cards/validate', (req, res) => {
       return res.json({ success: false, message: '卡号或密码错误' });
     }
 
+    const order = db.prepare('SELECT * FROM orders WHERE cardNo = ? ORDER BY rowid DESC').get(cardNo);
     res.json({
       success: true,
       message: card.status === 'used' ? '已提货' : '验证成功',
       card,
+      order: order || null,
       isUsed: card.status === 'used'
     });
   } catch (e) {
     console.error('Error validating card:', e);
     res.status(500).json({ success: false, message: '验证失败' });
-  }
-});
-
-app.get('/api/orders/bycard/:cardNo', (req, res) => {
-  try {
-    const { cardNo } = req.params;
-
-    const card = db.prepare('SELECT * FROM cards WHERE cardNo = ?').get(cardNo);
-    if (!card) {
-      return res.json({ success: false, message: '蟹卡不存在' });
-    }
-
-    if (card.status === 'unused') {
-      return res.json({
-        success: true,
-        hasOrder: false,
-        card: { cardNo: card.cardNo, status: card.status }
-      });
-    }
-
-    const order = db.prepare('SELECT * FROM orders WHERE cardNo = ?').get(cardNo);
-    res.json({
-      success: true,
-      hasOrder: true,
-      card: { cardNo: card.cardNo, status: card.status },
-      order
-    });
-  } catch (e) {
-    console.error('Error getting order by card:', e);
-    res.status(500).json({ success: false, message: '查询订单失败' });
   }
 });
 
@@ -334,6 +343,73 @@ app.post('/api/orders', (req, res) => {
   } catch (e) {
     console.error('Error creating order:', e);
     res.status(500).json({ success: false, message: '创建订单失败' });
+  }
+});
+
+app.get('/api/orders/bycard/:cardNo', (req, res) => {
+  try {
+    const { cardNo } = req.params;
+    const card = db.prepare('SELECT * FROM cards WHERE cardNo = ?').get(cardNo);
+    const order = db.prepare('SELECT * FROM orders WHERE cardNo = ? ORDER BY rowid DESC').get(cardNo);
+    res.json({
+      success: true,
+      hasOrder: !!order,
+      card: card || null,
+      data: order ? [order] : [],
+      order: order || null
+    });
+  } catch (e) {
+    console.error('Error getting order by card:', e);
+    res.status(500).json({ success: false, message: '获取订单失败' });
+  }
+});
+
+app.post('/api/orders/mine', (req, res) => {
+  try {
+    const { cardNo, password } = req.body;
+    const card = db.prepare('SELECT * FROM cards WHERE cardNo = ? AND password = ?').get(cardNo, password);
+
+    if (!card) {
+      return res.json({ success: false, message: '卡号或密码错误' });
+    }
+
+    const order = db.prepare('SELECT * FROM orders WHERE cardNo = ? ORDER BY rowid DESC').get(cardNo);
+    res.json({
+      success: true,
+      card,
+      data: order ? [order] : [],
+      order: order || null
+    });
+  } catch (e) {
+    console.error('Error getting card order:', e);
+    res.status(500).json({ success: false, message: '获取订单失败' });
+  }
+});
+
+app.post('/api/orders/confirm', (req, res) => {
+  try {
+    const { cardNo, password, orderId } = req.body;
+    const card = db.prepare('SELECT * FROM cards WHERE cardNo = ? AND password = ?').get(cardNo, password);
+
+    if (!card) {
+      return res.json({ success: false, message: '卡号或密码错误' });
+    }
+
+    const order = db.prepare('SELECT * FROM orders WHERE orderId = ? AND cardNo = ?').get(orderId, cardNo);
+    if (!order) {
+      return res.json({ success: false, message: '订单不存在' });
+    }
+    if (order.status !== 'shipped') {
+      return res.json({ success: false, message: '当前状态不可确认收货' });
+    }
+
+    const completeTime = new Date().toLocaleString('zh-CN');
+    db.prepare('UPDATE orders SET status = ?, completeTime = ? WHERE orderId = ?').run('completed', completeTime, orderId);
+
+    res.json({ success: true, message: '确认收货成功' });
+  } catch (e) {
+    console.error('Error confirming order:', e);
+    res.status(500).json({ success: false, message: '确认收货失败' });
   }
 });
 

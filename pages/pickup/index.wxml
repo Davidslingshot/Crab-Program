@@ -2,7 +2,7 @@
   <view class="card">
     <view class="title">提货申请</view>
     
-    <view wx:if="!submitted">
+    <view wx:if="{{!submitted}}">
       <view class="card" style="background: #fff8f0;">
         <view class="text-muted text-sm mb-20">当前蟹卡信息</view>
         <view class="text-lg">卡号：{{card.cardNo}}</view>
@@ -23,10 +23,13 @@
         <view class="form-label">联系电话 *</view>
         <input 
           class="form-input" 
+          type="number"
+          maxlength="11"
           placeholder="请输入手机号码" 
           value="{{phone}}"
           bindinput="handlePhoneInput"
         />
+        <view class="field-hint">仅用于商家联系您并配送，提交前请阅读并同意隐私政策</view>
       </view>
       
       <view class="form-item">
@@ -49,14 +52,24 @@
         />
       </view>
       
+      <view class="agree-row" bindtap="toggleAgree">
+        <view class="agree-box {{agreed ? 'checked' : ''}}">{{agreed ? '✓' : ''}}</view>
+        <view class="agree-text">
+          我已阅读并同意
+          <text class="agree-link" catchtap="openService">《用户服务协议》</text>
+          和
+          <text class="agree-link" catchtap="openPrivacy">《隐私政策》</text>
+          ，同意为发货配送收集、使用和存储我的姓名、手机号和地址。
+        </view>
+      </view>
+
       <view wx:if="{{error}}" class="error">{{error}}</view>
       
-      <button class="btn btn-primary" bindtap="submit" disabled="{{loading}}">
+      <button class="btn btn-primary" bindtap="submit" disabled="{{loading || !agreed}}">
         {{loading ? '提交中...' : '提交提货申请'}}
       </button>
       
       <button class="btn btn-secondary mt-20" bindtap="goBack">返回登录</button>
-      <button class="btn btn-secondary mt-10" bindtap="viewOrder">查看我的订单</button>
     </view>
     
     <view wx:else>

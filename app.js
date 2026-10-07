@@ -1,6 +1,7 @@
 // app.js
 App({
   onLaunch() {
+    console.log('APP_BUILD ORDER-FIX-3');
     console.log('App Launch');
     this.initData();
   },

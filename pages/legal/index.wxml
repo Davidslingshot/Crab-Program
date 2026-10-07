@@ -1,0 +1,13 @@
+<view class="legal-page">
+  <view class="legal-header">
+    <view class="back" bindtap="goBack">返回</view>
+    <view class="legal-title">{{title}}</view>
+  </view>
+
+  <view class="legal-update">{{update}}</view>
+
+  <view class="legal-block" wx:for="{{sections}}" wx:key="heading">
+    <view class="legal-heading">{{item.heading}}</view>
+    <view class="legal-body">{{item.body}}</view>
+  </view>
+</view>

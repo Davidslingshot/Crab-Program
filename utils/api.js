@@ -1,15 +1,15 @@
 const BASE_URL = 'http://175.27.225.217/api';
 
-function request(url, method = 'GET', data = null) {
+function request(url, method = 'GET', data) {
   return new Promise((resolve, reject) => {
-    wx.request({
+    const options = {
       url: `${BASE_URL}${url}`,
       method,
-      data,
       header: {
         'content-type': 'application/json'
       },
       success: (res) => {
+        console.log('api request', method, url, res.statusCode, res.data);
         if (res.statusCode === 200) {
           resolve(res.data);
         } else {
@@ -17,10 +17,30 @@ function request(url, method = 'GET', data = null) {
         }
       },
       fail: (err) => {
+        console.error('api fail', method, url, err);
         reject(err);
       }
-    });
+    };
+    if (data !== undefined) {
+      options.data = data;
+    }
+    wx.request(options);
   });
+}
+
+function pickOrder(res, cardNo) {
+  if (!res) return null;
+  if (res.order && res.order.orderId) return res.order;
+  if (Array.isArray(res.data)) {
+    if (cardNo) {
+      const found = res.data.find(function (o) { return o && o.cardNo === cardNo; });
+      if (found) return found;
+    }
+    return res.data[0] || null;
+  }
+  if (res.data && res.data.orderId) return res.data;
+  if (res.orderId) return res;
+  return null;
 }
 
 function validateCard(cardNo, password) {
@@ -35,26 +55,14 @@ function getOrders(status = 'all') {
   return request(`/orders?status=${status}`);
 }
 
-function getOrderByCard(cardNo) {
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${BASE_URL}/orders/bycard/${encodeURIComponent(cardNo)}`,
-      method: 'GET',
-      header: {
-        'content-type': 'application/json'
-      },
-      success: (res) => {
-        if (res.statusCode === 200) {
-          resolve(res.data);
-        } else {
-          reject(res.data);
-        }
-      },
-      fail: (err) => {
-        reject(err);
-      }
-    });
+function getMyOrder(cardNo, password) {
+  return request('/orders/mine', 'POST', { cardNo: cardNo, password: password }).catch(function () {
+    return request('/orders/bycard/' + encodeURIComponent(cardNo));
   });
+}
+
+function confirmReceipt(cardNo, password, orderId) {
+  return request('/orders/confirm', 'POST', { cardNo, password, orderId });
 }
 
 function updateOrderStatus(orderId, status) {
@@ -113,7 +121,10 @@ module.exports = {
   validateCard,
   createOrder,
   getOrders,
-  getOrderByCard,
+  getMyOrder,
+  getOrderByCard: getMyOrder,
+  pickOrder,
+  confirmReceipt,
   updateOrderStatus,
   getCards,
   importCards,

@@ -2,7 +2,8 @@
   "pages": [
     "pages/login/index",
     "pages/pickup/index",
-    "pages/order/index"
+    "pages/order/index",
+    "pages/legal/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",

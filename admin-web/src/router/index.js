@@ -10,7 +10,7 @@ const routes = [
       { path: 'orders', component: () => import('../views/Orders.vue') },
       { path: 'cards', component: () => import('../views/Cards.vue') },
       { path: 'import', component: () => import('../views/Import.vue') },
-      { path: 'change-password', component: () => import('../views/ChangePassword.vue') }
+      { path: 'password', component: () => import('../views/ChangePassword.vue') }
     ]
   }
 ]
